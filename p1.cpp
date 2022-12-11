@@ -94,11 +94,12 @@ void print_rectangle(vector<int> arr){
 bool spaceForSize(vector<int> emptySpaces, vector<int> filledSpaces, int index, int sizeOfSquare){
     if ((int) emptySpaces.size() - index < sizeOfSquare)
         return false;
-    else{
-        for (int i = index; i < (int) emptySpaces.size(); i++){
-            if (emptySpaces[i] < sizeOfSquare && filledSpaces[i] <= filledSpaces[index])
-                return false;
-        }
+    else { 
+        if (sizeOfSquare != 1)
+            for (int i = index; i < (int) emptySpaces.size(); i++){
+                if (emptySpaces[i] < sizeOfSquare || filledSpaces[i + 1] > filledSpaces[i])
+                    return false;
+            }
     }
     return true;
 }
@@ -119,8 +120,12 @@ vector<int> add_size(vector<int> arr, int index, int size){
 
 bool canPutSquares(vector<int> emptySpaces, vector<int> filledSpaces){
     for (int i = 0; i < (int) emptySpaces.size() - 1; i++){
-        if (emptySpaces[i] > 1 && emptySpaces[i + 1] - filledSpaces[i] >= emptySpaces[i])
-            return true;
+        if (emptySpaces[i] > 1){
+            if (emptySpaces[i + 1] - filledSpaces[i] >= emptySpaces[i])
+                return true;
+            else if (emptySpaces[i] == emptySpaces[i + 1] && filledSpaces[i] == filledSpaces[i + 1])
+                return true;
+        }
     }
     return false;
 }
@@ -131,17 +136,21 @@ long calculate_path(vector<int> emptySpaces, vector<int> filledSpaces, int l){
     long figs = 0;
 
     if (!canPutSquares(emptySpaces, filledSpaces)){
-        cout << "nao cabem mais quadrados\n";
+        //cout << "\e[1m -> nao cabem mais quadrados quando: \e[m\n";
+        //cout << "empty spaces: ";
+        //printArray(emptySpaces);
+        //cout << "filled spaces: ";
+        //printArray(filledSpaces);
         return 1;
     } else {
         auto min = min_element(filledSpaces.begin(), filledSpaces.end());
         int line = (int) distance(filledSpaces.begin(), min);
-        cout << "\e[1m" << "<< << << << line: " << line + 1 << " >> >> >> >>" << "\e[m" << endl;
-        cout << "min element: arr[" << line << "]" <<  endl;
-        cout << "empty spaces: ";
-        printArray(emptySpaces);
-        cout << "filledSpaces: ";
-        printArray(filledSpaces); 
+        //cout << "\e[1m" << "<< << << << line: " << line + 1 << " >> >> >> >>" << "\e[m" << endl;
+        //cout << "min element: arr[" << line << "]" <<  endl;
+        //cout << "empty spaces: ";
+        //printArray(emptySpaces);
+        //cout << "filled spaces: ";
+        //printArray(filledSpaces); 
 
         if (emptySpaces[line] == 0 && filledSpaces[line] == 0){
             //resize vectors
@@ -152,20 +161,17 @@ long calculate_path(vector<int> emptySpaces, vector<int> filledSpaces, int l){
             vector<int> newVector2(filledSpaces.begin() + 1, filledSpaces.end());
             filledSpaces.resize(filledSpaces.size() - 1);
             filledSpaces = newVector2;
-        } else if (emptySpaces[line] == 1){
-            emptySpaces[line]--;
-            filledSpaces[line]++;
         }
 
         for (int size = _largestSize; size > 0; size--){
             if (spaceForSize(emptySpaces, filledSpaces, line, size)){
                 vector<int> updatedEmptySpaces = remove_size(emptySpaces, line, size);
                 vector<int> updatedFilledSpaces = add_size(filledSpaces, line, size);
-                cout << "quadrado tamanho: " << size << endl;
+                //cout << "quadrado tamanho: " << size << endl;
                 figs += calculate_path(updatedEmptySpaces, updatedFilledSpaces, line);
             }    
             else{
-                cout << "nao ha espaco para quadrado de tamanho: " << size << endl;
+                //cout << "nao ha espaco para quadrado de tamanho: " << size << endl;
             }
         }
 
@@ -179,15 +185,15 @@ int main(){
     readInput();
 
     /* guideline to show all information when program runs */
-    cout << "retângulo de dimensao: " << _N << " x " << _M << endl;
-    cout << endl;
+    //cout << "retângulo de dimensao: " << _N << " x " << _M << endl;
+    //cout << endl;
 
     /* prints the rectangle */
-    print_rectangle(_path);
+    //print_rectangle(_path);
 
     /* the core algorithm */
-    cout << endl;
-    cout << "\e[1m" << "max size: " << "\e[m" << _largestSize << endl << endl;
+    //cout << endl;
+    //cout << "\e[1m" << "max size: " << "\e[m" << _largestSize << endl << endl;
     //cout << "resultado final: ";
     vector<int> emptySpaces(_path);
     vector<int> filledSpaces;

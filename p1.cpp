@@ -16,6 +16,7 @@ using namespace std;
 int _N, _M;
 vector<int> _path;
 int _largestSize = 0;
+long res = 0;
 
 
 /*
@@ -65,13 +66,24 @@ void readInput(){
         int u;
         cout << INPUT_CHAR;
         cin >> u;
-        if (u > _largestSize)
+        if (u > _largestSize){
             if(_N - i >= u)
                 _largestSize = u;
             else if(_N - i >= _largestSize)
                 _largestSize = _N - i;
+        }
         _path.push_back(u);
     }
+}
+
+void printArray(vector<int> arr){
+    for (int i = 0; i < (int) arr.size(); i++){
+        if (i == (int) arr.size() - 1)
+            cout << arr[i] << ";";
+        else
+            cout << arr[i] << ", ";
+    }
+    cout << endl;
 }
 
 /* prints the vertical line between squares */
@@ -96,7 +108,7 @@ void print_rectangle(vector<int> arr){
             cout << "|";
         }
 
-        if (i != _N){
+        if (i != (int) arr.size()){
             cout << endl;
             cout << vertical(arr[i]);
             cout << endl;
@@ -141,10 +153,10 @@ int count_combinations(int sizeOfSquare, int length, bool tryAllSizes){
 }
 
 bool spaceForSize(vector<int> emptySpaces, vector<int> filledSpaces, int index, int sizeOfSquare){
-    if (_N - index < sizeOfSquare)
+    if ((int) emptySpaces.size() - index < sizeOfSquare)
         return false;
     else{
-        for (int i = index; i < _N; i++){
+        for (int i = index; i < (int) emptySpaces.size(); i++){
             if (emptySpaces[i] < sizeOfSquare && filledSpaces[i] <= filledSpaces[index])
                 return false;
         }
@@ -167,7 +179,7 @@ vector<int> add_size(vector<int> arr, int index, int size){
 }
 
 /*
-int test_combinations(vector<int> arr, int l, int index){ /* (tamanho do quadrado que estamos a testar, index onde estamos) *
+int test_combinations(vector<int> arr, int l, int index){ 
     int margin;
     int res = count_combinations(l, arr[index] + l, false);
     for (int i = l - 1; i < _N - 1; i++){
@@ -178,7 +190,7 @@ int test_combinations(vector<int> arr, int l, int index){ /* (tamanho do quadrad
     }
     return res;
 }
-*/
+
 
 int test_square_format(vector<int> emptySpaces, vector<int> filledSpaces, int index){
     int figs = 0;
@@ -199,98 +211,67 @@ int test_square_format(vector<int> emptySpaces, vector<int> filledSpaces, int in
 
     return figs;
 }
+*/
 
-
-
-
-/* main algorithm */
-int calculate_path(vector<int> emptySpaces, vector<int> filledSpaces, int l){
-    int res = 0;
-    
-    while (emptySpaces[_N - 1] != 0){ //emptySpaces[0] != 1 <-- maybe
-        for (int line = 0; line < _N; line++){
-            cout << "\e[1m" << "<< << << << line: " << line << " >> >> >> >>" << "\e[m" << endl;
-            if (line == 0 && emptySpaces[0] == 1)
-                emptySpaces[0] = 0;
-            else if (line == _N - 1){
-                emptySpaces[line]--;
-                filledSpaces[line]++;        
-            }
-
-            for (int size = _largestSize; size > 0; size--){
-                if (spaceForSize(emptySpaces, filledSpaces, line, size)){
-                    if (size == 1){
-                        return 0;
-                    }
-                    vector<int> updatedEmptySpaces = remove_size(emptySpaces, line, size);
-                    vector<int> updatedFilledSpaces = add_size(filledSpaces, line, size);
-                    res++;
-                    res+= calculate_path(updatedEmptySpaces, updatedFilledSpaces, line);
-                }
-            }
-
-            emptySpaces[line]--;
-            filledSpaces[line]++;
-        }
+bool canPutSquares(vector<int> emptySpaces, vector<int> filledSpaces){
+    for (int i = 0; i < (int) emptySpaces.size() - 1; i++){
+        if (emptySpaces[i] > 1 && emptySpaces[i + 1] - filledSpaces[i] >= emptySpaces[i])
+            return true;
     }
-    return res;
+    return false;
 }
 
 
+/* main algorithm */
+long calculate_path(vector<int> emptySpaces, vector<int> filledSpaces, int l){
+    long figs = 0;
 
-    /*
-        filledSpaces = [2, 2, 0]      
-        emptySpaces = [2, 2, 4]
+    cout << "empty spaces: ";
+    printArray(emptySpaces);
+    cout << "filledSpaces: ";
+    printArray(filledSpaces); 
 
-        3 x 3:
+    if (!canPutSquares(emptySpaces, filledSpaces)){
+        cout << "nao cabem mais quadrados\n";
+        return 1;
+    } else {
+        auto min = min_element(filledSpaces.begin(), filledSpaces.end());
+        int line = (int) distance(filledSpaces.begin(), min);
+        cout << "min element: arr[" << line << "]" <<  endl;
+        cout << "\e[1m" << "<< << << << line: " << line + 1 << " >> >> >> >>" << "\e[m" << endl;
+        if (emptySpaces[line] == 0 && filledSpaces[line] == 0){
+            //resize vectors
+            vector<int> newVector1(emptySpaces.begin() + 1, emptySpaces.end());
+            emptySpaces.resize(emptySpaces.size() - 1);
+            emptySpaces = newVector1;
 
-        1   1   1   0
-        1   1   1   0
-        1   1   1   0
+            vector<int> newVector2(filledSpaces.begin() + 1, filledSpaces.end());
+            filledSpaces.resize(filledSpaces.size() - 1);
+            filledSpaces = newVector2;
+        } else if (emptySpaces[line] == 1){
+            emptySpaces[line]--;
+            filledSpaces[line]++;
+        }
+        else if (line == (int) emptySpaces.size() - 1){
+            emptySpaces[line]--;
+            filledSpaces[line]++;        
+        }
 
-        2 x 2:
+        for (int size = _largestSize; size > 0; size--){
+            if (spaceForSize(emptySpaces, filledSpaces, line, size)){
+                cout << "quadrado tamanho: " << size << endl;
+                vector<int> updatedEmptySpaces = remove_size(emptySpaces, line, size);
+                vector<int> updatedFilledSpaces = add_size(filledSpaces, line, size);
+                figs += calculate_path(updatedEmptySpaces, updatedFilledSpaces, line);
+            }    
+            else{
+                cout << "nao ha espaco para quadrado de tamanho: " << size << endl;
+            }
+        }
 
-        f:
-        1   1   0   0
-        1   1   0   0
-        0   0   0   0
-
-        subchamadas de f:
-
-                1   1   1   1
-                1   1   1   1
-                0   0   0   0 
-
-                1   1   0   0
-                1   1   1   1
-                0   0   1   1
-
-        1 x 1:
-
-        1   0   0   0
-        0   0   0   0
-        0   0   0   0
-
-        fim primeiro loop;
-
-        3 x 3:
-
-        //
-
-        2 x 2:
-
-        1   0   0   0
-        1   1   0   0
-        1   1   0   0
-
-        1   1   0   0
-        1   1   0   0
-        1   1   0   0
-        
-  
-        1   0   1   0
-
-    */
+    }
+    return figs;
+}
 
 /* main function */
 int main(){
@@ -306,6 +287,7 @@ int main(){
 
     /* the core algorithm */
     cout << endl;
+    cout << "max size: " << _largestSize << endl;
     //cout << "resultado final: ";
     vector<int> emptySpaces(_path);
     vector<int> filledSpaces;

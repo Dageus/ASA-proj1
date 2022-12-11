@@ -25,14 +25,14 @@ int min(int v, int k){
 
 /* reads the user's input and saves the values */
 void readInput(){
-    cout << INPUT_CHAR;
+    //cout << INPUT_CHAR;
     cin >> _N;
-    cout << INPUT_CHAR;
+    //cout << INPUT_CHAR;
     cin >> _M;
     _path.reserve(_N);
     for (int i = 0; i < _N; i++){
         int u;
-        cout << INPUT_CHAR;
+        //cout << INPUT_CHAR;
         cin >> u;
         if (u > _largestSize){
             if(_N - i >= u)

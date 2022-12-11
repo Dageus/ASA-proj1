@@ -153,24 +153,21 @@ bool spaceForSize(vector<int> emptySpaces, vector<int> filledSpaces, int index, 
 }
 
 vector<int> remove_size(vector<int> arr, int index, int size){
-    for (int i = index; i < _N; i++){
-        if (i == index + size)
-            break;
+    for (int i = index; i < index + size; i++){
         arr[i] -= size;
     }
     return arr;
 }
 
 vector<int> add_size(vector<int> arr, int index, int size){
-    for (int i = index; i < _N; i++){
-        if (i == index + size)
-            break;
+    for (int i = index; i < index + size; i++){
         arr[i] += size;
     }
     return arr;
 }
 
-int test_combinations(vector<int> arr, int l, int index){ /* (tamanho do quadrado que estamos a testar, index onde estamos) */
+/*
+int test_combinations(vector<int> arr, int l, int index){ /* (tamanho do quadrado que estamos a testar, index onde estamos) *
     int margin;
     int res = count_combinations(l, arr[index] + l, false);
     for (int i = l - 1; i < _N - 1; i++){
@@ -181,6 +178,7 @@ int test_combinations(vector<int> arr, int l, int index){ /* (tamanho do quadrad
     }
     return res;
 }
+*/
 
 int test_square_format(vector<int> emptySpaces, vector<int> filledSpaces, int index){
     int figs = 0;
@@ -205,40 +203,38 @@ int test_square_format(vector<int> emptySpaces, vector<int> filledSpaces, int in
 
 
 
-
-
 /* main algorithm */
-int calculate_path(int l){
+int calculate_path(vector<int> emptySpaces, vector<int> filledSpaces, int l){
     int res = 0;
-
-    vector<int> emptySpaces(_path);
-    vector<int> filledSpaces;
-    filledSpaces.resize(emptySpaces.size());
-    fill(filledSpaces.begin(), filledSpaces.end(), 0);
     
-    while (emptySpaces[_N - 1] != 0)
-        for (int i = 0; i < _N - 1; i++){
-            if (i == 0 && emptySpaces[0] == 1)
+    while (emptySpaces[_N - 1] != 0){ //emptySpaces[0] != 1 <-- maybe
+        for (int line = 0; line < _N; line++){
+            cout << "\e[1m" << "<< << << << line: " << line << " >> >> >> >>" << "\e[m" << endl;
+            if (line == 0 && emptySpaces[0] == 1)
                 emptySpaces[0] = 0;
-            cout << "\e[1m" << "<< << << << index: " << i << " >> >> >> >>" << "\e[m" << endl;
-            res += test_square_format(emptySpaces, filledSpaces, i);
-            emptySpaces[i]--;
-            filledSpaces[i]++;
-        }
-
-        for (int i = _largestSize; i > 0; i--){
-            if (spaceForSize(emptySpaces, filledSpaces, index, i)){
-                if (i == 1){
-                    //FIXME this might be wrong
-                    return 0;
-                }
-                vector<int> updatedEmptySpaces = remove_size(emptySpaces, index, i);
-                vector<int> updatedFilledSpaces = add_size(filledSpaces, index, i);
-                figs++;
-                figs+= test_square_format(updatedEmptySpaces, updatedFilledSpaces, index);
+            else if (line == _N - 1){
+                emptySpaces[line]--;
+                filledSpaces[line]++;        
             }
+
+            for (int size = _largestSize; size > 0; size--){
+                if (spaceForSize(emptySpaces, filledSpaces, line, size)){
+                    if (size == 1){
+                        return 0;
+                    }
+                    vector<int> updatedEmptySpaces = remove_size(emptySpaces, line, size);
+                    vector<int> updatedFilledSpaces = add_size(filledSpaces, line, size);
+                    res++;
+                    res+= calculate_path(updatedEmptySpaces, updatedFilledSpaces, line);
+                }
+            }
+
+            emptySpaces[line]--;
+            filledSpaces[line]++;
         }
     }
+    return res;
+}
 
 
 
@@ -296,9 +292,6 @@ int calculate_path(int l){
 
     */
 
-    return res;
-}
-
 /* main function */
 int main(){
     /* reads the user's input */
@@ -314,7 +307,11 @@ int main(){
     /* the core algorithm */
     cout << endl;
     //cout << "resultado final: ";
-    cout << calculate_path(_largestSize) << endl;
+    vector<int> emptySpaces(_path);
+    vector<int> filledSpaces;
+    filledSpaces.resize(emptySpaces.size());
+    fill(filledSpaces.begin(), filledSpaces.end(), 0);
+    cout << calculate_path(emptySpaces, filledSpaces,_largestSize) << endl;
 
     return 0;
 }

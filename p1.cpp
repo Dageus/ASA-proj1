@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cmath>
 #include <string>
+#include <algorithm>
 using namespace std;
 
 /* some useful constants */
@@ -186,49 +187,18 @@ int test_square_format(vector<int> emptySpaces, vector<int> filledSpaces, int in
         if (spaceForSize(emptySpaces, filledSpaces, index, i)){
             vector<int> updatedEmptySpaces = remove_size(emptySpaces, index, i);
             vector<int> updatedFilledSpaces = add_size(filledSpaces, index, i);
+            figs++;
+            //figs+= ?; check if we should call same function
+        }
+        else if (){
 
         }
+        else {
 
+        }
+        
     }
 
-
-
-
-
-
-
-
-    if (size == 1)
-        return 1;
-    for (int i = 0; i < _N; i++){
-        vector<int> temp_arr(_path.begin(), _path.end()); //temp array to count squares
-        cout << "--> linha: " << i + 1 << endl; 
-        if (i == _N - 1){
-            cout << "fim da tentativa para quadrado de tamanho: " << size << endl;
-            break;
-        }
-        if (arr[i] >= size){
-            if (_N - i >= size){    
-                cout << "cabe um quadrado de tamanho " << size << endl;
-                if (arr[i] - size >= 1){
-                    // test how many squares fit
-                    cout << "cabe quadrados ao lado\n";
-                    temp_arr = remove_size(temp_arr, i, size);
-                    figs += test_combinations(temp_arr, size, i);
-                }
-                else{
-                    figs++;
-                    //temp_arr = remove_lines(temp_arr, i, size);
-                    //figs += test_next_square(temp_arr, size, i);
-                }
-            } else{
-                // if it cant fit in this line, it won't fit in the rest
-                cout << "fim da tentativa para quadrado de tamanho: " << size << endl;
-                break;
-            }
-        }
-        cout << "figs: " << figs << endl;
-    }
     return figs;
 }
 

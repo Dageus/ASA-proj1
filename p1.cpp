@@ -105,13 +105,17 @@ bool canPutSquares(vector<int> emptySpaces, vector<int> filledSpaces){
 }
 
 int getLine(vector<int> emptySpaces, vector<int> filledSpaces){
-    auto min = min_element(filledSpaces.begin(), filledSpaces.end());
+    int i = 0;
+    while (emptySpaces[i] == 0){
+        i++;
+    }
+    auto min = min_element(filledSpaces.begin() + i, filledSpaces.end());
     int line = (int) distance(filledSpaces.begin(), min);
-    if (filledSpaces[line] != 0){
+    /*if (filledSpaces[line] != 0){
         while (emptySpaces[line] == 0 ){
             line++;
         }
-    }
+    }*/
     return line;
 }
 

@@ -90,7 +90,7 @@ void print_rectangle(vector<int> arr){
 }
 
 bool spaceForSize(vector<int> emptySpaces, vector<int> filledSpaces, int index, int sizeOfSquare){
-    if ((int) emptySpaces.size() - index < sizeOfSquare)
+    if ((int) emptySpaces.size() - index < sizeOfSquare || emptySpaces[index] == 0)
         return false;
     else { 
         if (sizeOfSquare != 1){
@@ -119,20 +119,24 @@ vector<int> add_size(vector<int> arr, int index, int size){
 
 bool canPutSquares(vector<int> emptySpaces, vector<int> filledSpaces){
     for (int i = 0; i < (int) emptySpaces.size() - 1; i++){
-        if (emptySpaces[i] > 1){
-            if (i == 4){
-                cout << "free spaces: " << emptySpaces[i] << "\tfilled spaces: " << filledSpaces[i] << endl;
-                cout << "free spaces: " << emptySpaces[i + 1] << "\tfilled spaces: " << filledSpaces[i + 1] << endl;
-            }
-            if (emptySpaces[i + 1] - filledSpaces[i] >= emptySpaces[i])
-                return true;
-            else if (emptySpaces[i] <= emptySpaces[i + 1] && filledSpaces[i] == filledSpaces[i + 1])
-                return true;
-        }
+        if (emptySpaces[i] == 0 && i == (int) emptySpaces.size() - 2)
+            return false;
+        else if (emptySpaces[i] <= emptySpaces[i + 1] && filledSpaces[i] >= filledSpaces[i + 1] && emptySpaces[i] > 1)
+            return true;
     }
     return false;
 }
 
+int getLine(vector<int> emptySpaces, vector<int> filledSpaces){
+    auto min = min_element(filledSpaces.begin(), filledSpaces.end());
+    int line = (int) distance(filledSpaces.begin(), min);
+    if (filledSpaces[line] != 0){
+        while (emptySpaces[line] == 0){
+            line++;
+        }
+    }
+    return line;
+}
 
 /* main algorithm */
 long calculate_path(vector<int> emptySpaces, vector<int> filledSpaces, int l){
@@ -146,8 +150,7 @@ long calculate_path(vector<int> emptySpaces, vector<int> filledSpaces, int l){
         printArray(filledSpaces);
         return 1;
     } else {
-        auto min = min_element(filledSpaces.begin(), filledSpaces.end());
-        int line = (int) distance(filledSpaces.begin(), min);
+        int line = getLine(emptySpaces, filledSpaces);
         cout << "\e[1m" << "<< << << << line: " << line + 1 << " >> >> >> >>" << "\e[m" << endl;
         cout << "min element: arr[" << line << "]" <<  endl;
         cout << "empty spaces: ";
@@ -170,12 +173,10 @@ long calculate_path(vector<int> emptySpaces, vector<int> filledSpaces, int l){
             if (spaceForSize(emptySpaces, filledSpaces, line, size)){
                 vector<int> updatedEmptySpaces = remove_size(emptySpaces, line, size);
                 vector<int> updatedFilledSpaces = add_size(filledSpaces, line, size);
-                //cout << "quadrado tamanho: " << size << endl;
                 figs += calculate_path(updatedEmptySpaces, updatedFilledSpaces, line);
-            }    
-            else{
-                cout << "nao ha espaco para quadrado de tamanho: " << size << endl;
-            }
+            }  
+            else
+                cout << "nao ha espaco para quadrados de tamanho: " << size << endl;
         }
 
     }

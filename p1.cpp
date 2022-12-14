@@ -13,43 +13,15 @@ vector<int> _path;
 unordered_map<string, unsigned long long> hashmap;
 int _largestSize = 0;
 
-struct VectorHasher {
-    unsigned long long operator()(const vector<int> &V) const {
-        unsigned long long hash = V.size();
-        for(auto &i : V) {
-            hash ^= i + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-        }
-        return hash;
-    }
-};
 
-string Stringhash(vector<int> emptySpaces){
+string my_hash(vector<int> emptySpaces){
     string hash = "";
     for (int i = 0; i < _N; i++){
-        hash += to_string(emptySpaces[i]);
+        hash +=  char(emptySpaces[i]);
     }
     return hash;
 }
 
-unsigned long long my_hash(vector<int> emptySpaces){
-    unsigned long long hash = 0;
-    for (int i = 0; i < _N; i++){
-        hash += emptySpaces[i] * pow(10, i);
-    }
-    return hash;
-}
-
-void printArray(vector<int> arr){
-    for (int i = 0; i < _N; i++){
-        cout << arr[i];
-        if (i == _N - 1)
-            cout << ";\n";
-        else
-            cout << ", ";
-    }
-}
-
-/* reads the user's input and saves the values */
 void readInput(){
     cin >> _N;
     cin >> _M;
@@ -85,38 +57,11 @@ bool spaceForSize(vector<int> emptySpaces, int index, int sizeOfSquare){
     return true;
 }
 
-vector<int> normalize(vector<int> arr){
-    if (arr[0] > arr[1]){
-        arr[0] = arr[1];
-    }
-    for (int i = 1; i < _N - 1; i++){
-        if (arr[i] > arr[i - 1] && arr[i] > arr[i + 1])
-            arr[i] = max(arr[i - 1], arr[i + 1]);
-    }
-    if (arr[_N - 1] > arr[_N - 2]){
-        arr[_N - 1] = arr[_N - 2];
-    }
-    return arr;
-}
-
 vector<int> remove_size(vector<int> arr, int index, int size){
     for (int i = index; i < index + size; i++){
         arr[i] -= size;
     }
     return arr;
-}
-
-void printRectangle(vector<int> emptySpaces){
-    for (int i = 0; i < _N; i++){
-        for (int j = 0; j < (_path[i] - emptySpaces[i]); j++){
-            cout << "1\t";
-        }
-        for (int k = 0; k < emptySpaces[i]; k++){
-            cout << "0\t";
-        }
-        cout << endl;
-    }
-    cout << endl;
 }
 
 bool canPutSquares(vector<int> emptySpaces){
@@ -151,11 +96,11 @@ bool empty(vector<int> emptySpaces){
     return true;
 }
 
-/* main algorithm */
 unsigned long long calculate_path(vector<int> emptySpaces){
     unsigned long long figs = 0;
 
-    string key = Stringhash(emptySpaces);
+
+    string key = my_hash(emptySpaces);
 
     if (hashmap.find(key) != hashmap.end()){
         return hashmap[key];
@@ -179,7 +124,6 @@ unsigned long long calculate_path(vector<int> emptySpaces){
 
 /* main function */
 int main(){
-    /* reads the user's input */
     readInput();
 
     if (empty(_path))

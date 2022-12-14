@@ -1,70 +1,102 @@
 #include <vector>
+#include <map>
+#include <bits/stdc++.h>
 #include <iostream>
 #include <cmath>
 #include <string>
 #include <algorithm>
 using namespace std;
 
-/* some useful constants */
-
-#define INPUT_CHAR ">> "
-#define LATERAL "----"
-#define HASH 99999989
-
 /* global variables */
 int _N, _M;
 vector<int> _path;
+unordered_map<string, unsigned long long> hashmap;
 int _largestSize = 0;
-long long res = 0;
 
+struct VectorHasher {
+    unsigned long long operator()(const vector<int> &V) const {
+        unsigned long long hash = V.size();
+        for(auto &i : V) {
+            hash ^= i + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        }
+        return hash;
+    }
+};
 
+string Stringhash(vector<int> emptySpaces){
+    string hash = "";
+    for (int i = 0; i < _N; i++){
+        hash += to_string(emptySpaces[i]);
+    }
+    return hash;
+}
+
+unsigned long long my_hash(vector<int> emptySpaces){
+    unsigned long long hash = 0;
+    for (int i = 0; i < _N; i++){
+        hash += emptySpaces[i] * pow(10, i);
+    }
+    return hash;
+}
+
+void printArray(vector<int> arr){
+    for (int i = 0; i < _N; i++){
+        cout << arr[i];
+        if (i == _N - 1)
+            cout << ";\n";
+        else
+            cout << ", ";
+    }
+}
 
 /* reads the user's input and saves the values */
 void readInput(){
-    //cout << INPUT_CHAR;
     cin >> _N;
-    //cout << INPUT_CHAR;
     cin >> _M;
-    _path.reserve(_N);
-    for (int i = 0; i < _N; i++){
-        int u;
-        //cout << INPUT_CHAR;
+    int u = 0;
+    int j = 0;
+    while (u == 0){
         cin >> u;
-        if (u > _largestSize){
-            if(_N - i >= u)
-                _largestSize = u;
-            else if(_N - i >= _largestSize)
-                _largestSize = _N - i;
-        }
+        if (u == 0)
+            j++;
+        if (j == _N)
+            break;
+    }
+    _N -= j;
+    _path.reserve(_N);
+    _path.push_back(u);
+    for (int i = 0; i < _N - 1; i++){
+        cin >> u;
         _path.push_back(u);
     }
 }
 
-void printArray(vector<int> arr){
-    for (int i = 0; i < (int) arr.size(); i++){
-        if (i == (int) arr.size() - 1)
-            cout << arr[i] << ";";
-        else
-            cout << arr[i] << ", ";
-    }
-    cout << endl;
-}
-
-bool spaceForSize(vector<int> emptySpaces, vector<int> filledSpaces, int index, int sizeOfSquare){
-    if ((int) emptySpaces.size() - index < sizeOfSquare || emptySpaces[index] == 0)
+bool spaceForSize(vector<int> emptySpaces, int index, int sizeOfSquare){
+    if (_N - index < sizeOfSquare || emptySpaces[index] == 0)
         return false;
     else { 
         if (sizeOfSquare != 1){
-            if (sizeOfSquare == 2 && emptySpaces[0] == 2 && emptySpaces[1] == 2 && emptySpaces[2] == 1 && emptySpaces[3] == 1){
-                 
-            }
-            for (int i = index; i < index + sizeOfSquare; i++){//
-                if (emptySpaces[i] < sizeOfSquare || filledSpaces[i] > filledSpaces[index])
+            for (int i = index; i < index + sizeOfSquare; i++){
+                if (emptySpaces[i] < sizeOfSquare || (_path[i] - emptySpaces[i]) > (_path[index] - emptySpaces[index]))
                     return false;
             }
         }
     }
     return true;
+}
+
+vector<int> normalize(vector<int> arr){
+    if (arr[0] > arr[1]){
+        arr[0] = arr[1];
+    }
+    for (int i = 1; i < _N - 1; i++){
+        if (arr[i] > arr[i - 1] && arr[i] > arr[i + 1])
+            arr[i] = max(arr[i - 1], arr[i + 1]);
+    }
+    if (arr[_N - 1] > arr[_N - 2]){
+        arr[_N - 1] = arr[_N - 2];
+    }
+    return arr;
 }
 
 vector<int> remove_size(vector<int> arr, int index, int size){
@@ -74,16 +106,9 @@ vector<int> remove_size(vector<int> arr, int index, int size){
     return arr;
 }
 
-vector<int> add_size(vector<int> arr, int index, int size){
-    for (int i = index; i < index + size; i++){
-        arr[i] += size;
-    }
-    return arr;
-}
-
-void printRectangle(vector<int> emptySpaces, vector<int> filledSpaces){
-    for (int i = 0; i < (int) emptySpaces.size(); i++){
-        for (int j = 0; j < filledSpaces[i]; j++){
+void printRectangle(vector<int> emptySpaces){
+    for (int i = 0; i < _N; i++){
+        for (int j = 0; j < (_path[i] - emptySpaces[i]); j++){
             cout << "1\t";
         }
         for (int k = 0; k < emptySpaces[i]; k++){
@@ -91,36 +116,35 @@ void printRectangle(vector<int> emptySpaces, vector<int> filledSpaces){
         }
         cout << endl;
     }
-    cout << endl;//
+    cout << endl;
 }
 
-bool canPutSquares(vector<int> emptySpaces, vector<int> filledSpaces){
-    for (int i = 0; i < (int) emptySpaces.size() - 1; i++){
-        if (emptySpaces[i] == 0 && i == (int) emptySpaces.size() - 2)
+bool canPutSquares(vector<int> emptySpaces){
+    for (int i = 0; i < _N - 1; i++){
+        if (emptySpaces[i] < 2 && i == _N - 2){
             return false;
-        else if (emptySpaces[i] <= emptySpaces[i + 1] && filledSpaces[i] >= filledSpaces[i + 1] && emptySpaces[i] > 1)
+        }
+        else if (emptySpaces[i] > 1 &&
+        _path[i] - (_path[i + 1] - emptySpaces[i + 1]) > 1)
             return true;
     }
     return false;
 }
 
-int getLine(vector<int> emptySpaces, vector<int> filledSpaces){
-    int i = 0;
-    while (emptySpaces[i] == 0){
-        i++;
-    }
-    auto min = min_element(filledSpaces.begin() + i, filledSpaces.end());
-    int line = (int) distance(filledSpaces.begin(), min);
-    /*if (filledSpaces[line] != 0){
-        while (emptySpaces[line] == 0 ){
-            line++;
+int getLine(vector<int> emptySpaces){
+    int min = _M;
+    int line = 0;
+    for (int i = 0; i < _N; i++){
+        if (min > _path[i] - emptySpaces[i] && emptySpaces[i] != 0){
+            min = _path[i] - emptySpaces[i];
+            line = i;
         }
-    }*/
+    }
     return line;
 }
 
 bool empty(vector<int> emptySpaces){
-    for (int i = 0; i < (int) emptySpaces.size(); i++){
+    for (int i = 0; i < _N; i++){
         if (emptySpaces[i] != 0)
             return false;
     }
@@ -128,46 +152,28 @@ bool empty(vector<int> emptySpaces){
 }
 
 /* main algorithm */
-long long calculate_path(vector<int> emptySpaces, vector<int> filledSpaces, int l){
-    long long figs = 0;
+unsigned long long calculate_path(vector<int> emptySpaces){
+    unsigned long long figs = 0;
 
-    //printRectangle(emptySpaces, filledSpaces);
+    string key = Stringhash(emptySpaces);
 
-    if (!canPutSquares(emptySpaces, filledSpaces)){
-        //cout << " --> nao cabem mais quadrados quando: \n";
-        //cout << "  empty spaces: ";
-        //printArray(emptySpaces);
-        //cout << "  filled spaces: ";
-        //printArray(filledSpaces);
-        //cout << "done;\n\n";
+    if (hashmap.find(key) != hashmap.end()){
+        return hashmap[key];
+    }
+    if (!canPutSquares(emptySpaces)){
         return 1;
     } else {
-        int line = getLine(emptySpaces, filledSpaces);
-        //cout << "<< << << << line: " << line + 1 << " >> >> >> >>" << endl;
-        //cout << "empty spaces: ";
-        //printArray(emptySpaces);
-        //cout << "filled spaces: ";
-        //printArray(filledSpaces); 
+        int line = getLine(emptySpaces);
 
-        if (emptySpaces[line] == 0 && filledSpaces[line] == 0){
-            //resize vectors
-            vector<int> newVector1(emptySpaces.begin() + 1, emptySpaces.end());
-            emptySpaces.resize(emptySpaces.size() - 1);
-            emptySpaces = newVector1;
-
-            vector<int> newVector2(filledSpaces.begin() + 1, filledSpaces.end());
-            filledSpaces.resize(filledSpaces.size() - 1);
-            filledSpaces = newVector2;
-        }
-
-        for (int size = _largestSize; size > 0; size--){
-            if (spaceForSize(emptySpaces, filledSpaces, line, size)){
+        for (int size = 1; size <= emptySpaces[line]; size++){
+            if (spaceForSize(emptySpaces, line, size)){
                 vector<int> updatedEmptySpaces = remove_size(emptySpaces, line, size);
-                vector<int> updatedFilledSpaces = add_size(filledSpaces, line, size);
-                figs += calculate_path(updatedEmptySpaces, updatedFilledSpaces, line);
-            }
+                figs += calculate_path(updatedEmptySpaces);
+            } else
+                break;
         }
     }
+    hashmap[key] = figs;
     return figs;
 }
 
@@ -176,22 +182,9 @@ int main(){
     /* reads the user's input */
     readInput();
 
-    /* guideline to show all information when program runs */
-    //cout << "retângulo de dimensao: " << _N << " x " << _M << endl;
-    //cout << endl;
-
-    /* the core algorithm */
-    //cout << endl;
-    //cout << "->" << "max size: " << _largestSize << endl << endl;
-    //cout << "resultado final: ";
-    vector<int> emptySpaces(_path);
-    vector<int> filledSpaces;
-    filledSpaces.resize(emptySpaces.size());
-    fill(filledSpaces.begin(), filledSpaces.end(), 0);
-    if (empty(emptySpaces))
+    if (empty(_path))
         cout << 0 << endl;
     else
-        cout << calculate_path(emptySpaces, filledSpaces,_largestSize) << endl;
-
+        cout << calculate_path(_path) << endl;
     return 0;
 }

@@ -131,7 +131,7 @@ bool empty(vector<int> emptySpaces){
 long long calculate_path(vector<int> emptySpaces, vector<int> filledSpaces, int l){
     long long figs = 0;
 
-    printRectangle(emptySpaces, filledSpaces);
+    //printRectangle(emptySpaces, filledSpaces);
 
     if (!canPutSquares(emptySpaces, filledSpaces)){
         //cout << " --> nao cabem mais quadrados quando: \n";
@@ -139,7 +139,7 @@ long long calculate_path(vector<int> emptySpaces, vector<int> filledSpaces, int 
         //printArray(emptySpaces);
         //cout << "  filled spaces: ";
         //printArray(filledSpaces);
-        cout << "done;\n\n";
+        //cout << "done;\n\n";
         return 1;
     } else {
         int line = getLine(emptySpaces, filledSpaces);
@@ -177,12 +177,12 @@ int main(){
     readInput();
 
     /* guideline to show all information when program runs */
-    cout << "retângulo de dimensao: " << _N << " x " << _M << endl;
-    cout << endl;
+    //cout << "retângulo de dimensao: " << _N << " x " << _M << endl;
+    //cout << endl;
 
     /* the core algorithm */
-    cout << endl;
-    cout << "->" << "max size: " << _largestSize << endl << endl;
+    //cout << endl;
+    //cout << "->" << "max size: " << _largestSize << endl << endl;
     //cout << "resultado final: ";
     vector<int> emptySpaces(_path);
     vector<int> filledSpaces;
